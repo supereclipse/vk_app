@@ -41,14 +41,14 @@ RSpec.describe 'Students API', type: :request do
           first_name: { type: :string },
           last_name: { type: :string },
           surname: { type: :string },
-          class_id: { type: :integer },
+          klass_id: { type: :integer },
           school_id: { type: :integer }
         },
-        required: ['first_name', 'last_name', 'surname', 'class_id', 'school_id']
+        required: ['first_name', 'last_name', 'surname', 'klass_id', 'school_id']
       }
 
       response '201', 'Student created' do
-        let(:student) { { first_name: 'Иван', last_name: 'Иванов', surname: 'Иванович', class_id: klass.id, school_id: school.id } }
+        let(:student) { { first_name: 'Иван', last_name: 'Иванов', surname: 'Иванович', klass_id: klass.id, school_id: school.id } }
         let(:school) { School.create!(name: 'Школа №1') }
         let(:klass) { Klass.create!(number: 1, letter: 'А', school: school) }
 
