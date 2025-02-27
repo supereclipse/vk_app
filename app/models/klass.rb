@@ -1,5 +1,6 @@
 class Klass < ApplicationRecord
-  belongs_to :school
-
   validates :number, :letter, presence: true
+
+  belongs_to :school
+  has_many :students
 end
