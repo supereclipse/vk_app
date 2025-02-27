@@ -19,8 +19,14 @@ COPY . .
 # Precompile assets (if needed)
 # RUN RAILS_ENV=production bundle exec rake assets:precompile
 
+# Copy the entrypoint script
+COPY entrypoint.sh /usr/bin/entrypoint.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /usr/bin/entrypoint.sh
+
 # Expose the port your app runs on
 EXPOSE 3000
 
-# Start the Rails server
-CMD ["rails", "server", "-b", "0.0.0.0"]
+# Set the entrypointt
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
