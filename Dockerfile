@@ -28,5 +28,5 @@ RUN chmod +x /usr/bin/entrypoint.sh
 # Expose the port your app runs on
 EXPOSE 3000
 
-# Set the entrypointt
+# Set the entrypoint
 ENTRYPOINT ["/usr/bin/entrypoint.sh"]
