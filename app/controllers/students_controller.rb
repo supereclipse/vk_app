@@ -1,6 +1,7 @@
 class StudentsController < ApplicationController
   before_action :set_klass, only: [:index]
   before_action :set_student, only: [:destroy]
+  skip_before_action :authorize_request, only: [:create]
 
   def index
     students = @klass.students

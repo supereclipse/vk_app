@@ -90,7 +90,7 @@ RSpec.configure do |config|
 
       '/school/{school_id}/klass' => {
         get: {
-          tags: ['classes'],
+          tags: ['klass'],
           summary: 'Вывести список классов школы',
           operationId: 'getClassList',
           parameters: [
@@ -127,11 +127,9 @@ RSpec.configure do |config|
           }
         }
       }
-
-
       },
       servers: [
-        { url: 'http://127.0.0.1:3000' },
+        { url: 'http://0.0.0.0:3000' },
         {
           url: 'https://{defaultHost}',
           variables: {
