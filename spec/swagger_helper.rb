@@ -3,28 +3,135 @@
 require 'rails_helper'
 
 RSpec.configure do |config|
-  # Specify a root folder where Swagger JSON files are generated
-  # NOTE: If you're using the rswag-api to serve API descriptions, you'll need
-  # to ensure that it's configured to serve Swagger from the same folder
   config.openapi_root = Rails.root.join('swagger').to_s
 
-  # Define one or more Swagger documents and provide global metadata for each one
-  # When you run the 'rswag:specs:swaggerize' rake task, the complete Swagger will
-  # be generated at the provided relative path under openapi_root
-  # By default, the operations defined in spec files are added to the first
-  # document below. You can override this behavior by adding a openapi_spec tag to the
-  # the root example_group in your specs, e.g. describe '...', openapi_spec: 'v2/swagger.json'
   config.openapi_specs = {
     'v1/swagger.yaml' => {
       openapi: '3.0.1',
       info: {
         title: 'API V1',
-        version: 'v1'
+        version: 'v1',
+        description: 'API documentation for the Student Management System'
       },
-      paths: {},
+      paths: {
+        '/students' => {
+          post: {
+            tags: ['students'],
+            summary: 'Регистрация нового студента',
+            operationId: 'createStudent',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+              description: 'Новый студент',
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    '$ref' => '#/components/schemas/Student'
+                  }
+                }
+              }
+            },
+            responses: {
+              '201': {
+                description: 'Successful operation',
+                headers: {
+                  'X-Auth-Token': {
+                    description: 'Токен для последующей авторизации',
+                    schema: { type: :string },
+                    example: '3525dcdddea774939652f7f11df6d7db10a9db35a5d758c64d600a00c1cc41be'
+                  }
+                },
+                content: {
+                  'application/json': {
+                    schema: {
+                      '$ref' => '#/components/schemas/Student'
+                    }
+                  }
+                }
+              },
+              '405': {
+                description: 'Invalid input'
+              }
+            }
+          }
+        },
+
+        '/students/{user_id}' => {
+          delete: {
+            tags: ['students'],
+            summary: 'Удалить студента',
+            operationId: 'deleteStudent',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+              {
+                name: 'user_id',
+                in: 'path',
+                required: true,
+                description: 'ID студента',
+                schema: {
+                  type: 'integer',
+                  format: 'int64'
+                }
+              }
+            ],
+            responses: {
+              '204': {
+                description: 'Студент успешно удалён'
+              },
+              '400': {
+                description: 'Некорректный id студента'
+              },
+              '401': {
+                description: 'Некорректная авторизация'
+              }
+            }
+          }
+        },
+
+      '/school/{school_id}/klass' => {
+        get: {
+          tags: ['classes'],
+          summary: 'Вывести список классов школы',
+          operationId: 'getClassList',
+          parameters: [
+            {
+              name: 'school_id',
+              in: 'path',
+              required: true,
+              description: 'ID школы',
+              schema: {
+                type: 'integer',
+                format: 'int32'
+              }
+            }
+          ],
+          responses: {
+            '200': {
+              description: 'Список классов',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      data: {
+                        type: 'array',
+                        items: {
+                          '$ref' => '#/components/schemas/Klass'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+
+      },
       servers: [
         { url: 'http://127.0.0.1:3000' },
-
         {
           url: 'https://{defaultHost}',
           variables: {
@@ -34,13 +141,62 @@ RSpec.configure do |config|
           }
         }
       ],
-      security: []
+      components: {
+        schemas: {
+          Student: {
+            type: :object,
+            properties: {
+              first_name: { type: :string },
+              last_name: { type: :string },
+              surname: { type: :string },
+              class_id: { type: :integer },
+              school_id: { type: :integer }
+            },
+            required: ['first_name', 'last_name', 'surname', 'class_id', 'school_id']
+          },
+          Klass: {
+            type: :object,
+            required: ['id', 'number', 'letter', 'students_count'],
+            properties: {
+              id: {
+                type: :integer,
+                format: :int32,
+                example: 10,
+                readOnly: true
+              },
+              number: {
+                type: :integer,
+                format: :int32,
+                example: 1,
+                description: 'Цифра класса'
+              },
+              letter: {
+                type: :string,
+                example: 'Б',
+                description: 'Буква класса'
+              },
+              students_count: {
+                type: :integer,
+                format: :int32,
+                example: 32,
+                readOnly: true,
+                description: 'Количество учеников в классе'
+              }
+            }
+          }
+        },
+        securitySchemes: {
+          bearerAuth: {
+            type: :http,
+            scheme: :bearer,
+            bearerFormat: 'JWT'
+          }
+        }
+      },
+      security: [{ bearerAuth: [] }]
     }
   }
 
-  # Specify the format of the output Swagger file when running 'rswag:specs:swaggerize'.
-  # The openapi_specs configuration option has the filename including format in
-  # the key, this may want to be changed to avoid putting yaml in json files.
-  # Defaults to json. Accepts ':json' and ':yaml'.
   config.openapi_format = :yaml
 end
+
